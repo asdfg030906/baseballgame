@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>숫자 맞추기 게임</title>
+    <style>
+      body {
+        background-color: whitesmoke;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        display: flex;
+        flex-direction: column;
+        /* Flex 안의 아이템들을 세로 방향으로 배치합니다. */
+        justify-content: center;
+        /* 주축 방향으로 가운데 정렬합니다. */
+        align-items: center;
+      }
+      main {
+        padding-top: 50px;
+        padding-bottom: 50px;
+        margin-top: 100px;
+        width: 500px;
+        height: 100%;
+        background-color: brown;
+        display: flex;
+        flex-direction: column;
+        /* Flex 안의 아이템들을 세로 방향으로 배치합니다. */
+        justify-content: center;
+        /* 주축 방향으로 가운데 정렬합니다. */
+        align-items: center;
+        color: white;
+        border: 1px solid white;
+        border-radius: 15px;
+        box-shadow: 5px 5px 5px 5px;
+        text-align: center;
+      }
+      img {
+        width: 50px;
+        height: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <form action="" id="baseballForm">
+        <div><img src="baseball.png" alt="" /></div>
+        <h1>숫자 야구 게임</h1>
+        <h1>
+          컴퓨터가 숫자를 생성하였습니다.<br />
+          답을 맞춰보세요!
+        </h1>
+        <input
+          type="number"
+          id="inputNumber"
+          class="form-control"
+          maxlength="3"
+          oninput="handleInputLength(this, 3)"
+        />
+        <button type="submit">Submit</button>
+        <br />
+        <div class="result"><br /></div>
+        <br />
+      </form>
+    </main>
+    <script>
+      function handleInputLength(el, max) {
+        if (el.value.length > max) {
+          el.value = el.value.substr(0, max);
+        }
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        let randomNumber = [];
+
+        // 1부터 9까지의 숫자를 배열에 넣기
+        for (let i = 1; i <= 9; i++) {
+          randomNumber.push(i.toString());
+        }
+
+        // Fisher-Yates 알고리즘을 사용하여 배열 섞기
+        for (let i = randomNumber.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [randomNumber[i], randomNumber[j]] = [
+            randomNumber[j],
+            randomNumber[i],
+          ];
+        }
+
+        // 앞에서부터 세 개의 값을 추출하여 결과 배열에 저장
+        randomNumber = randomNumber.slice(0, 3);
+
+        const baseballForm = document.getElementById('baseballForm');
+        const resultDisplay = document.querySelector('.result');
+        let clickCnt = 0;
+
+        baseballForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          clickCnt++;
+
+          const inputNumber = document
+            .getElementById('inputNumber')
+            .value.trim();
+          // 입력값이 숫자인지 확인
+          if (!isNaN(inputNumber)) {
+            const inputArray = inputNumber.split('');
+            let ballCnt = 0;
+            let strikeCnt = 0;
+
+            for (let j = 0; j < randomNumber.length; j++) {
+              if (inputArray[j] === randomNumber[j]) {
+                strikeCnt++;
+              } else if (randomNumber.includes(inputArray[j])) {
+                ballCnt++;
+              }
+            }
+
+            // 결과 표시
+            let resultMessage = `${clickCnt}번째 시도: ${inputNumber}`;
+
+            // 결과 추가
+            const resultNode = document.createElement('div');
+            resultNode.textContent = resultMessage;
+
+            resultDisplay.appendChild(resultNode);
+
+            // 숫자 맞히기 결과 추가
+            resultMessage = `${ballCnt}B ${strikeCnt}S`;
+            const resultNode2 = document.createElement('div');
+            resultNode2.textContent = resultMessage;
+            resultDisplay.appendChild(resultNode2);
+
+            // 줄 바꿈 추가
+            const br = document.createElement('br');
+            resultDisplay.appendChild(br);
+
+            if (strikeCnt === 3) {
+              resultMessage += `\n${clickCnt}번만에 맞히셨습니다.\n게임을 종료합니다.`;
+              baseballForm.removeEventListener('submit', handleFormSubmit);
+            }
+          } else {
+            // 입력값이 숫자가 아닐 때의 처리
+            alert('숫자만 입력해주세요!');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
